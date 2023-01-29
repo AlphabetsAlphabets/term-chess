@@ -8,8 +8,28 @@ const std::string YELLOW = "\x1b[33m";
 const std::string BLUE = "\x1b[34m";
 const std::string RESET = "\x1b[0m";
 
-void reset_color() { std::cout << RESET; }
-void set_color_yellow() { std::cout << YELLOW; }
+const int CASTLE = 0;
+const int BISHOP = 1;
+const int KNIGHT = 2;
+const int KING = 3;
+const int QUEEN = 4;
+const int PAWN = 5;
+
+std::string blue_text(std::string logo) {
+    return BLUE + logo + RESET;
+}
+
+std::string red_text(std::string text) {
+    return RED + text + RESET;
+}
+
+std::string green_text(std::string logo) {
+    return GREEN + logo + RESET;
+}
+
+std::string yellow_text(std::string logo) {
+    return YELLOW + logo + RESET;
+}
 
 void display_board(std::vector<std::vector<std::string>> &board) {
     std::string v_divider = std::string(23, '=');
@@ -27,15 +47,7 @@ void display_board(std::vector<std::vector<std::string>> &board) {
         std::string line = "";
         for (int j = 0; j < row.size(); j++) {
             std::string column = row[j];
-            if (column == "X") {
-                set_color_yellow();
-            }
-
             std::cout << column << " ";
-
-            if (j == 7) {
-                reset_color();
-            }
         }
 
         std::cout << "| " << i;
@@ -59,6 +71,21 @@ void help_message(int option) {
     }
 }
 
+bool parse_input(std::string str, bool& is_green_turn) {
+    if (str.length() > 2) {
+	    std::cout << "That is an invalid cell.\n";
+        is_green_turn = true;
+	    return false;
+    } else if (str == "?") {
+        help_message(1);
+        return false;
+    } else if (str == "Q") {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool move_piece(std::vector<std::vector<std::string>> &board, bool& is_green_turn) {
     std::cout << "\nIt is ";
     if (is_green_turn) {
@@ -73,14 +100,7 @@ bool move_piece(std::vector<std::vector<std::string>> &board, bool& is_green_tur
     std::cout << "\nSelect the piece to move: ";
     getline(std::cin, piece_to_move);
 
-    if (piece_to_move.length() > 2) {
-	    std::cout << "That is an invalid cell.\n";
-        is_green_turn = true;
-	    return false;
-    } else if (piece_to_move == "?") {
-        help_message(1);
-        return false;
-    } else if (piece_to_move == "Q") {
+    if (parse_input(piece_to_move, is_green_turn)) {
         return true;
     }
 
@@ -90,14 +110,7 @@ bool move_piece(std::vector<std::vector<std::string>> &board, bool& is_green_tur
 
     std::cout << std::endl;
 
-    if (move_piece_to.length() > 2) {
-	    std::cout << "That is an invalid cell.\n";
-        is_green_turn = false;
-	    return false;
-    } else if (move_piece_to == "?") {
-        help_message(1);
-        return false;
-    } else if (move_piece_to == "Q") {
+    if (parse_input(move_piece_to, is_green_turn)) {
         return true;
     }
 
@@ -110,54 +123,103 @@ bool move_piece(std::vector<std::vector<std::string>> &board, bool& is_green_tur
     int cell_x = new_cell[0] - '0';
     int cell_y = new_cell[1] - '0';
 
-    // TODO: This doesn't work all the time. It's weird.
     std::string empty = YELLOW + "X" + RESET;
     std::string &ori_piece = board[piece_x][piece_y];
     if (ori_piece == "X") {
-        std::cout << "\nTry again. You are " << RED << "not" << RESET << " allowed to move an empty cell.\n";
+        std::cout << "\nTry again. You are " << red_text("not") << " allowed to move an empty cell.\n";
         is_green_turn = !(is_green_turn == true);
 
         return false;
     }
 
-    std::string &replace_piece = board[cell_x][cell_y];
-    if (replace_piece == BLUE + "K" + RESET) {
-        std::cout << "Game, set, match! Victory goes to " << GREEN << "green" << RESET << "!\n" << std::endl;
+    std::string &replaced_piece = board[cell_x][cell_y];
+    if (replaced_piece == blue_text("K")) {
+        std::cout << "Game, set, match! Victory goes to " << green_text("green") << "!\n" << std::endl;
+        return true;
+    } else if (replaced_piece == green_text("K")) {
+        std::cout << "Game, set, match! Victory goes to " << blue_text("blue") << "!\n" << std::endl;
         return true;
     }
 
-    if (replace_piece == GREEN + "K" + RESET) {
-        std::cout << "Game, set, match! Victory goes to " << BLUE << "blue" << RESET << "!\n" << std::endl;
-        return true;
-    }
-
-    replace_piece = ori_piece;
+    replaced_piece = ori_piece;
     ori_piece = empty;
 
     return false;
 }
 
+std::vector<std::vector<std::string>> create_board() {
+    bool make_blue_pieces = true;
+    std::vector<std::string> pieces = { 
+        "C", "B", "k", "K", "Q", "P"
+    };
+
+    std::vector<std::vector<std::string>> board;
+
+    for (int i = 0; i < 8; i++) {
+        std::vector<std::string> row;
+        std::string piece;
+
+        if (i > 1 && i <= 5) {
+            for (int x = 0; x < 8; x++) {
+                piece = yellow_text("X");
+                row.push_back(piece);
+            }
+        } else if (i == 1 | i == 6) {
+            for (int x = 0; x < 8; x++) {
+                piece = pieces[PAWN];
+                row.push_back(piece);
+            }
+        } else {
+            for (int j = 0; j < 8; j++) {
+                if (j == 0 || j == 7) {
+                    piece = pieces[CASTLE];
+                }
+
+                if (j == 1 || j == 6) {
+                    piece = pieces[BISHOP];
+                }
+
+                if (j == 2 || j == 5) {
+                    piece = pieces[KNIGHT];
+                }
+
+                if (j == 3) {
+                    piece = pieces[KING];
+                }
+
+                if (j == 4) {
+                    piece = pieces[QUEEN];
+                }
+
+                row.push_back(piece);
+            }
+        }
+
+
+        board.push_back(row);
+    }
+
+    return board;
+}
+
 void game() {
     bool is_green_turn = true;
     std::vector<std::vector<std::string>> board = {
-        {BLUE + "C" + RESET, BLUE + "B" + RESET, BLUE + "k" + RESET, BLUE + "K" + RESET, BLUE + "Q" + RESET, BLUE + "k" + RESET, BLUE + "B" + RESET, BLUE + "C" + RESET},
-        {BLUE + "P" + RESET, BLUE + "P" + RESET, BLUE + "P" + RESET, BLUE + "P" + RESET, BLUE + "P" + RESET, BLUE + "P" + RESET, BLUE + "P" + RESET, BLUE + "P" + RESET},
-        {"X", "X", "X", "X", "X", "X", "X", "X"},
-        {"X", "X", "X", "X", "X", "X", "X", "X"},
-        {"X", "X", "X", "X", "X", "X", "X", "X"},
-        {"X", "X", "X", "X", "X", "X", "X", "X"},
-        {GREEN + "P" + RESET, GREEN + "P" + RESET, GREEN + "P" + RESET, GREEN + "P" + RESET, GREEN + "P" + RESET, GREEN + "P" + RESET, GREEN +"P" + RESET, GREEN + "P" + RESET},
-        {GREEN + "C" + RESET, GREEN + "B" + RESET, GREEN + "k" + RESET, GREEN + "K" + RESET, GREEN + "Q" + RESET, GREEN + "k" + RESET, GREEN + "B" + RESET, GREEN + "C" + RESET},
+        { blue_text("C"), blue_text("B"), blue_text("k"), blue_text("K"), blue_text("Q"), blue_text("k"), blue_text("B"), blue_text("C") },
+        { blue_text("P"), blue_text("P"), blue_text("P"), blue_text("P"), blue_text("P"), blue_text("P"), blue_text("P"), blue_text("P") },
+        { yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X") },
+        { yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X") },
+        { yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X") },
+        { yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X") },
+        { green_text("P"), green_text("P"), green_text("P"), green_text("P"), green_text("P"), green_text("P"), green_text("P"), green_text("P") },
+        { green_text("C"), green_text("B"), green_text("k"), green_text("K"), green_text("Q"), green_text("k"), green_text("B"), green_text("C") },
     };
 
-    std::cout << "\n1. Your pieces are in " << GREEN << "green" << RESET << ". Your opponent's pieces are in " << BLUE << "blue" << RESET << ".\n";
-    std::cout
-        << "2. Unoccupied cells are marked with a yellow '\x1b[33mX\x1b[0m'\n";
-    std::cout << "3. If at any point you have no idea what to do type "
-        "'\x1b[31m?\x1b[0m' and "
-        "press ENTER.\n";
+    std::cout << "\n1. Your pieces are in " << green_text("green") << ". Your opponent's pieces are in " << blue_text("blue") << ".\n";
+    std::cout << "2. Unoccupied cells are marked with a yellow '" << yellow_text("X") << "'.\n";
+    std::cout << "3. If at any point you have no idea what to do type '" << red_text("?") << "' and press ENTER.\n";
     std::cout << "4. You can quit at any point in the game by pressing CTRL+c or a "
-        "capital '" << RED << "Q" << RESET << "'\n\n";
+        "capital '" << red_text("Q") << "'\n\n";
 
     bool has_game_ended = false;
     while (!has_game_ended) {
@@ -166,4 +228,6 @@ void game() {
     }
 }
 
-int main() { game(); }
+int main() { 
+    game();
+}
