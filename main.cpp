@@ -73,7 +73,11 @@ bool move_piece(std::vector<std::vector<std::string>> &board, bool& is_green_tur
     std::cout << "\nSelect the piece to move: ";
     getline(std::cin, piece_to_move);
 
-    if (piece_to_move == "?") {
+    if (piece_to_move.length() > 2) {
+	    std::cout << "That is an invalid cell.\n";
+        is_green_turn = true;
+	    return false;
+    } else if (piece_to_move == "?") {
         help_message(1);
         return false;
     } else if (piece_to_move == "Q") {
@@ -86,7 +90,11 @@ bool move_piece(std::vector<std::vector<std::string>> &board, bool& is_green_tur
 
     std::cout << std::endl;
 
-    if (move_piece_to == "?") {
+    if (move_piece_to.length() > 2) {
+	    std::cout << "That is an invalid cell.\n";
+        is_green_turn = false;
+	    return false;
+    } else if (move_piece_to == "?") {
         help_message(1);
         return false;
     } else if (move_piece_to == "Q") {
@@ -111,7 +119,6 @@ bool move_piece(std::vector<std::vector<std::string>> &board, bool& is_green_tur
 
         return false;
     }
-
 
     std::string &replace_piece = board[cell_x][cell_y];
     if (replace_piece == BLUE + "K" + RESET) {
