@@ -160,7 +160,13 @@ std::vector<std::vector<std::string>> create_board() {
         bool draw_pawn_row = false;
         std::string piece;
 
-        row.push_back("P");
+        if (i >= 8 && i <= 15) {
+            row.push_back(blue_text("P"));
+        } else if (i >= 48 && i <= 55) {
+            row.push_back(green_text("P"));
+        } else {
+            row.push_back("E");
+        }
 
         if (i % 8 == 7) {
             board.push_back(row);
@@ -198,6 +204,7 @@ void game() {
     }
 }
 int main() { 
-    std::vector<std::vector<std::string>> board = create_board();
-    display_board(board);
+    game();
+    /* std::vector<std::vector<std::string>> board = create_board(); */
+    /* display_board(board); */
 }
