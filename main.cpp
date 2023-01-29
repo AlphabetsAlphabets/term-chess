@@ -195,7 +195,6 @@ std::vector<std::vector<std::string>> create_board() {
             }
         }
 
-
         board.push_back(row);
     }
 
@@ -227,7 +226,7 @@ void game() {
         has_game_ended = move_piece(board, is_green_turn);
     }
 }
-
 int main() { 
-    game();
+    std::vector<std::vector<std::string>> board = create_board();
+    display_board(board);
 }
