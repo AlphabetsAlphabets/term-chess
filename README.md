@@ -1,2 +1,2 @@
 # Chess
-Yeah that's pretty much it. It's going to be completely terminal based and is going to be my first C++ project. So, it definitely won't be good lol.
+My first C++ project. Decided to make a chess game. There are no checks to prevent illegal moves and there is trust that the player will adhere to them.
