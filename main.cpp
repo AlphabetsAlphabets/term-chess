@@ -148,54 +148,25 @@ bool move_piece(std::vector<std::vector<std::string>> &board, bool& is_green_tur
 }
 
 std::vector<std::vector<std::string>> create_board() {
-    bool make_blue_pieces = true;
     std::vector<std::string> pieces = { 
         "C", "B", "k", "K", "Q", "P"
     };
 
     std::vector<std::vector<std::string>> board;
 
-    for (int i = 0; i < 8; i++) {
-        std::vector<std::string> row;
+    std::vector<std::string> row;
+    for (int i = 0; i < 64; i++) {
+        bool draw_blue_piece = true;
+        bool draw_pawn_row = false;
         std::string piece;
 
-        if (i > 1 && i <= 5) {
-            for (int x = 0; x < 8; x++) {
-                piece = yellow_text("X");
-                row.push_back(piece);
-            }
-        } else if (i == 1 | i == 6) {
-            for (int x = 0; x < 8; x++) {
-                piece = pieces[PAWN];
-                row.push_back(piece);
-            }
-        } else {
-            for (int j = 0; j < 8; j++) {
-                if (j == 0 || j == 7) {
-                    piece = pieces[CASTLE];
-                }
+        row.push_back("P");
 
-                if (j == 1 || j == 6) {
-                    piece = pieces[BISHOP];
-                }
-
-                if (j == 2 || j == 5) {
-                    piece = pieces[KNIGHT];
-                }
-
-                if (j == 3) {
-                    piece = pieces[KING];
-                }
-
-                if (j == 4) {
-                    piece = pieces[QUEEN];
-                }
-
-                row.push_back(piece);
-            }
+        if (i % 8 == 7) {
+            board.push_back(row);
+            row.clear();
         }
 
-        board.push_back(row);
     }
 
     return board;
