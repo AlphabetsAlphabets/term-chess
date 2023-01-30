@@ -1,8 +1,12 @@
-a.out
 chess
-.clangd
 CMakeCache.txt
 
-build/
+a.out
+
+.clangd
+
 .cache/
+.ccls-cache/
+
+build/
 CMakeFiles/
