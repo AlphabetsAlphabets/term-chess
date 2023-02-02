@@ -129,7 +129,7 @@ bool move_piece(std::vector<std::vector<std::string>> &board,
   std::string &replaced_piece = board[cell_x][cell_y];
   if (replaced_piece == blue_text("K")) {
     std::cout << "Game, set, match! Victory goes to " << green_text("green")
-              << "!\n"
+              << "!\n congratulations!\n"
               << std::endl;
     return true;
   } else if (replaced_piece == green_text("K")) {
@@ -145,26 +145,33 @@ bool move_piece(std::vector<std::vector<std::string>> &board,
   return false;
 }
 
+std::vector<std::string> row(const std::vector<std::string>& pieces, std::string color) {
+    auto row = pieces;
+
+    for(auto& v : row) {
+        v = color + v + RESET;
+    }
+
+    return row;
+}
+
+std::vector<std::vector<std::string>> create_board() {
+    const std::vector<std::string> valuable_pieces = { "C", "B", "k", "K", "Q", "k", "B", "C" };
+    const std::vector<std::string> pawns(8, "P");
+
+    std::vector<std::vector<std::string>> board(8, std::vector<std::string>(8, "X"));  
+
+    board[0] = row(valuable_pieces, BLUE);
+    board[1] = row(pawns, BLUE);
+    board[6] = row(pawns, GREEN);
+    board[7] = row(valuable_pieces, GREEN);
+  
+    return board;
+}
+
 void game() {
   bool is_green_turn = true;
-  std::vector<std::vector<std::string>> board = {
-      {blue_text("C"), blue_text("B"), blue_text("k"), blue_text("K"),
-       blue_text("Q"), blue_text("k"), blue_text("B"), blue_text("C")},
-      {blue_text("P"), blue_text("P"), blue_text("P"), blue_text("P"),
-       blue_text("P"), blue_text("P"), blue_text("P"), blue_text("P")},
-      {yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"),
-       yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X")},
-      {yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"),
-       yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X")},
-      {yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"),
-       yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X")},
-      {yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X"),
-       yellow_text("X"), yellow_text("X"), yellow_text("X"), yellow_text("X")},
-      {green_text("P"), green_text("P"), green_text("P"), green_text("P"),
-       green_text("P"), green_text("P"), green_text("P"), green_text("P")},
-      {green_text("C"), green_text("B"), green_text("k"), green_text("K"),
-       green_text("Q"), green_text("k"), green_text("B"), green_text("C")},
-  };
+  std::vector<std::vector<std::string>> board = create_board();
 
   std::cout << "\n1. Your pieces are in " << green_text("green")
             << ". Your opponent's pieces are in " << blue_text("blue") << ".\n";
